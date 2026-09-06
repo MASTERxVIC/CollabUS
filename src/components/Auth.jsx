@@ -176,7 +176,7 @@ export default function Auth() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-[#1E1E24] hover:bg-black text-white font-medium py-3 rounded-full text-sm transition-all duration-200 cursor-pointer shadow-md active:scale-[0.99] mt-2 z-15"
+              className="w-full bg-[#1E1E24] hover:bg-black text-white font-medium py-3 rounded-full text-sm transition-all duration-200 cursor-pointer shadow-md active:scale-[0.99] mt-2 "
             >
               {loading ? "Processing..." : isSignUp ? "Continue" : "Log In"}
             </button>
@@ -200,7 +200,7 @@ export default function Auth() {
           </div>
         </div>
         {/* Bottom-Right Corner SVG from public folder */}
-        <div className="absolute bottom-0 right-0 pointer-events-none z-10 w-80 h-80 overflow-hidden">
+        <div className="absolute bottom-0 right-0 pointer-events-none w-80 h-80 overflow-hidden">
           <svg viewBox="-100 -100 100 100" xmlns="http://www.w3.org/2000/svg">
             <path
               fill="#FDD739"
