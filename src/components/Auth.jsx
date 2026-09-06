@@ -77,15 +77,13 @@ export default function Auth() {
 
       {/* Left Side: Warm & Friendly Form with SVGs in Corners */}
       <div className="w-full lg:w-1/2 h-full flex flex-col justify-between p-8 sm:p-14 overflow-y-auto no-scrollbar z-10 relative">
-        <div className="max-w-md w-full mx-auto my-auto space-y-6">
-          {/* Your Centered Logo */}
-          <img
-            src="/AuthLogo.svg"
-            alt="CollabUS Logo"
-            className="h-12 w-auto mb-2 object-contain"
-          />
-          {/* Header Title & Subtitle */}
-          <div className="space-y-1.5">
+        <div className="max-w-md w-full mx-auto my-auto space-y-6 z-20">
+          <div className="flex flex-col items-center text-center space-y-1.5">
+            <img
+              src="/AuthLogo.svg"
+              alt="CollabUS Logo"
+              className="h-12 w-auto mb-2 object-contain mx-auto"
+            />
             <h2 className="text-3xl font-sans font-extrabold  text-[#1E1E24]">
               {isSignUp ? "Create an account" : "Welcome back"}
             </h2>
@@ -200,7 +198,7 @@ export default function Auth() {
           </div>
         </div>
         {/* Bottom-Right Corner SVG from public folder */}
-        <div className="absolute bottom-0 right-0 pointer-events-none w-80 h-80 overflow-hidden">
+        <div className="absolute bottom-0 right-0 pointer-events-none w-80 h-80 overflow-hidden z-0">
           <svg viewBox="-100 -100 100 100" xmlns="http://www.w3.org/2000/svg">
             <path
               fill="#FDD739"
