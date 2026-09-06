@@ -190,7 +190,7 @@ export default function TaskCard({ task, onToggle, onEdit, onDelete }) {
               <p
                 className={`text-lg font-afacad font-regular line-clamp-2 ${task.completed ? "text-gray-400" : "text-gray-300"}`}
               >
-                {task.des || "description description description"}
+                {task.des || ""}
               </p>
             </div>
 
