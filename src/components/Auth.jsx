@@ -80,7 +80,7 @@ export default function Auth() {
         <div className="max-w-md w-full mx-auto my-auto space-y-6">
           {/* Your Centered Logo */}
           <img
-            src="/public/Logo.svg"
+            src="/Logo.svg"
             alt="CollabUS Logo"
             className="h-12 w-auto mb-2 object-contain"
           />
