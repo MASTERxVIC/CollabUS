@@ -111,7 +111,7 @@ export default function Sidebar({
       {/* Header - App Brand */}
       <div className="flex items-center justify-between mb-4 shrink-0 px-2">
         <div className="flex items-center gap-2">
-          <img src="/Logo.svg" alt="CollabUS Logo" className="w-6 h-6" />
+          <img src="/Logo.svg" alt="CollabUS Logo" className="w-8 h-8" />
           <span className="font-archivo font-semibold text-lg text-[#FDFBF7]">
             Collab<span className="text-[#FDD739]">US</span>
           </span>
