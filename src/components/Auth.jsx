@@ -80,7 +80,7 @@ export default function Auth() {
         <div className="max-w-md w-full mx-auto my-auto space-y-6">
           {/* Your Centered Logo */}
           <img
-            src="/Logo.svg"
+            src="/AuthLogo.svg"
             alt="CollabUS Logo"
             className="h-12 w-auto mb-2 object-contain"
           />
@@ -176,7 +176,7 @@ export default function Auth() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-[#1E1E24] hover:bg-black text-white font-medium py-3 rounded-full text-sm transition-all duration-200 cursor-pointer shadow-md active:scale-[0.99] mt-2"
+              className="w-full bg-[#1E1E24] hover:bg-black text-white font-medium py-3 rounded-full text-sm transition-all duration-200 cursor-pointer shadow-md active:scale-[0.99] mt-2 z-15"
             >
               {loading ? "Processing..." : isSignUp ? "Continue" : "Log In"}
             </button>
