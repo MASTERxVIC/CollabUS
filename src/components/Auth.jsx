@@ -62,7 +62,7 @@ export default function Auth() {
   return (
     <div className="min-h-screen w-full flex overflow-hidden fixed inset-0 bg-[#FDFBF7]">
       {/* Top-Left Corner Direct SVG */}
-      <div className="absolute top-0 left-0 pointer-events-none z-10 w-80 h-80 overflow-hidden">
+      <div className="absolute top-0 left-0 pointer-events-none z-10 w-80 h-80 lg:w-56 lg:h-56 overflow-hidden">
         <svg
           viewBox="-10 -10 100 100"
           xmlns="http://www.w3.org/2000/svg"
