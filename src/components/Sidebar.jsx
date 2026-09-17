@@ -15,6 +15,7 @@ import {
   Trash2,
   Lock,
   Bell,
+  Share2,
 } from "lucide-react";
 import { enableNotifications } from "../utils/pushService";
 
@@ -56,7 +57,7 @@ export default function Sidebar({
   onOpenCreateModal,
   onOpenJoinModal,
   onOpenLogs,
-  boardMembers = [], // Added default prop to avoid undefined error
+  boardMembers = [],
 }) {
   const [copied, setCopied] = useState(false);
   const [showCode, setShowCode] = useState(false);
@@ -99,6 +100,28 @@ export default function Sidebar({
     navigator.clipboard.writeText(inviteCode);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleShareInvite = async () => {
+    if (!hasValidCode) return;
+    const shareUrl = `${window.location.origin}?join=${inviteCode}`;
+    const shareData = {
+      title: `Join ${activeBoard?.name || "Board"} on CollabUS`,
+      text: `Join my board "${activeBoard?.name}" using code: ${inviteCode}`,
+      url: shareUrl,
+    };
+
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+      } catch (err) {
+        if (err.name !== "AbortError") console.error(err);
+      }
+    } else {
+      navigator.clipboard.writeText(shareUrl);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
   };
 
   const handleEnablePushNotification = async () => {
@@ -353,6 +376,25 @@ export default function Sidebar({
                           <Copy className="w-4 h-4" />
                         )}
                       </button>
+
+                      {/* Share Button (Unchanged original code block surroundings) */}
+                      <button
+                        type="button"
+                        onClick={handleShareInvite}
+                        disabled={!hasValidCode}
+                        title={
+                          hasValidCode
+                            ? "Share Board Link"
+                            : "Select board first"
+                        }
+                        className={`p-1.5 rounded-lg transition-colors ${
+                          hasValidCode
+                            ? "bg-slate-700/50 hover:bg-slate-700 text-gray-300 hover:text-white cursor-pointer"
+                            : "bg-slate-800 text-gray-600 cursor-not-allowed opacity-50"
+                        }`}
+                      >
+                        <Share2 className="w-4 h-4" />
+                      </button>
                     </div>
                   </div>
                 )}
@@ -467,7 +509,6 @@ export default function Sidebar({
             </div>
 
             <div className="flex items-center gap-1 shrink-0">
-              {/* Sleek Notification Bell Icon Button (Bina layout disturb kiye) */}
               <button
                 type="button"
                 onClick={handleEnablePushNotification}

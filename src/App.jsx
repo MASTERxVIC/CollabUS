@@ -18,21 +18,21 @@ export default function App() {
   const [view, setView] = useState('all');
   const [activeBoard, setActiveBoard] = useState(null);
   const [boards, setBoards] = useState([]);
-  
+
   // Custom Hook for Board Members
   const { members: boardMembers, loading: membersLoading } = useBoardMembers(activeBoard?.id);
 
   // Pass activeBoard.id and boardMembers to useTasks hook
-  const { 
-    user, 
-    loading, 
-    logout, 
-    tasks, 
-    addTask, 
-    updateTask, 
-    deleteTask, 
-    toggleTask, 
-    clearAll, 
+  const {
+    user,
+    loading,
+    logout,
+    tasks,
+    addTask,
+    updateTask,
+    deleteTask,
+    toggleTask,
+    clearAll,
     counts,
     refetchTasks
   } = useTasks(activeBoard?.id, boardMembers);
@@ -43,8 +43,25 @@ export default function App() {
   const [editingTask, setEditingTask] = useState(null);
   const [confirm, setConfirm] = useState(null);
   const [joinModalOpen, setJoinModalOpen] = useState(false);
+  const [initialInviteCode, setInitialInviteCode] = useState(''); // Added for URL join code pre-fill
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [logsOpen, setLogsOpen] = useState(false);
+
+  // Auto-Detect 'join' parameter from URL on Mount
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const joinCode = urlParams.get('join');
+
+    if (joinCode) {
+      setInitialInviteCode(joinCode);
+      setJoinModalOpen(true);
+
+      // URL clean kar rahe hain bina reload/refresh ke
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  }, []);
 
   const handleSelectBoard = (board) => {
     setActiveBoard(board);
@@ -253,6 +270,7 @@ export default function App() {
     }
 
     setJoinModalOpen(false);
+    setInitialInviteCode('');
     handleSelectBoard(board);
     await fetchBoards();
     if (refetchTasks) await refetchTasks();
@@ -320,22 +338,25 @@ export default function App() {
 
   return (
     <div className="h-[100dvh] w-full flex bg-[#FDFBF7] overflow-hidden fixed inset-0">
-      {/* Desktop Sidebar: Set to w-80 or w-72 as per your design */}
+      {/* Desktop Sidebar */}
       <div className="hidden md:block z-30">
-        <Sidebar 
-          view={view} 
-          setView={setView} 
-          counts={counts} 
-          user={user} 
+        <Sidebar
+          view={view}
+          setView={setView}
+          counts={counts}
+          user={user}
           boards={boards}
           activeBoard={activeBoard}
           onSelectBoard={(board) => handleSelectBoard(board)}
           onDeleteBoard={requestDeleteBoard}
-          onLogout={logout} 
-          onOpenJoinModal={() => setJoinModalOpen(true)}
+          onLogout={logout}
+          onOpenJoinModal={() => {
+            setInitialInviteCode('');
+            setJoinModalOpen(true);
+          }}
           onOpenCreateModal={() => setCreateModalOpen(true)}
           onOpenLogs={() => setLogsOpen(true)}
-          boardMembers={boardMembers} 
+          boardMembers={boardMembers}
         />
       </div>
 
@@ -375,6 +396,7 @@ export default function App() {
                 onClose={() => setMobileNavOpen(false)}
                 onOpenJoinModal={() => {
                   setMobileNavOpen(false);
+                  setInitialInviteCode('');
                   setJoinModalOpen(true);
                 }}
                 onOpenCreateModal={() => {
@@ -394,7 +416,6 @@ export default function App() {
 
       {/* Main Content Area */}
       <div className="flex-1 min-w-0 flex flex-col h-full overflow-hidden">
-        {/* Topbar: Rendered directly inside flex container to seamlessly adjust width */}
         <Topbar
           view={view}
           search={search}
@@ -405,8 +426,7 @@ export default function App() {
           hasTasks={tasks?.length > 0}
         />
 
-        {/* CSS UPDATED: max-w-3xl changed to max-w-[1200px] */}
-        <main className="flex-1 min-h-0 overflow-y-auto no-scrollbar px-4 md:px-14.2 py-6 max-w-300 w-full mx-auto">
+        <main className="flex-1 min-h-0 overflow-y-auto no-scrollbar px-4 md:px-14.2 py-6 max-w-[1200px] w-full mx-auto">
           <TaskList
             tasks={tasks || []}
             view={view}
@@ -424,14 +444,14 @@ export default function App() {
         onClose={() => setLogsOpen(false)}
       />
 
-      <TaskDrawer 
-        open={drawerOpen} 
-        onClose={closeDrawer} 
-        onSave={handleSave} 
-        editingTask={editingTask} 
-        boardMembers={boardMembers} 
+      <TaskDrawer
+        open={drawerOpen}
+        onClose={closeDrawer}
+        onSave={handleSave}
+        editingTask={editingTask}
+        boardMembers={boardMembers}
       />
-      
+
       <CreateBoardModal
         open={createModalOpen}
         onClose={() => setCreateModalOpen(false)}
@@ -441,7 +461,11 @@ export default function App() {
 
       <JoinBoardModal
         open={joinModalOpen}
-        onClose={() => setJoinModalOpen(false)}
+        initialCode={initialInviteCode}
+        onClose={() => {
+          setJoinModalOpen(false);
+          setInitialInviteCode('');
+        }}
         onJoin={handleJoinBoard}
       />
 
