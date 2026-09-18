@@ -62,11 +62,4 @@ src/
   index.css            # design tokens (@theme), fonts
 ```
 
-## Notes
 
-- Priority (low/normal/high) is a new field not present in the original —
-  it's optional and defaults to "normal."
-- Task data model is `{ id, task, des, deadline, priority, completed }`.
-  If you want to migrate tasks from the original app's `localStorage`
-  ("tasks" key), map each entry to this shape and write it under
-  `todo-modern-tasks`.
