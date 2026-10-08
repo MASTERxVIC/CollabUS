@@ -2657,12 +2657,15 @@ index ae971b3..0000000
 -printTree('.');
 \ No newline at end of file
 diff --git a/index.html b/index.html
-index a4ba95c..ac8bb4d 100644
+index a4ba95c..fb07ccd 100644
 --- a/index.html
 +++ b/index.html
-@@ -4,7 +4,7 @@
+@@ -3,8 +3,10 @@
+   <head>
      <meta charset="UTF-8" />
      <link rel="icon" type="image/png" href="/collabusfavicon.png" />
++    <link rel="manifest" href="/manifest.json" />
++    <meta name="theme-color" content="#1E1E24" />
      <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
 -    <meta name="description" content="Tasked — a modern, fast todo list." />
 +    <meta name="description" content="CollabUS — create and share a unified workspace with friends to manage and assign tasks seamlessly." />
@@ -2680,6 +2683,31 @@ index 2cd8306..a1752da 100644
    "private": true,
    "version": "0.0.0",
    "type": "module",
+diff --git a/public/manifest.json b/public/manifest.json
+new file mode 100644
+index 0000000..f33f989
+--- /dev/null
++++ b/public/manifest.json
+@@ -0,0 +1,19 @@
++{
++  "background_color": "#FDFBF7",
++  "description": "Create and share a unified workspace with friends to manage and assign tasks seamlessly.",
++  "display": "standalone",
++  "icons": [
++    {
++      "purpose": "any",
++      "sizes": "1024x1024",
++      "src": "/collabusfavicon.png",
++      "type": "image/png"
++    }
++  ],
++  "name": "CollabUS",
++  "orientation": "portrait",
++  "scope": "/",
++  "short_name": "CollabUS",
++  "start_url": "/",
++  "theme_color": "#1E1E24"
++}
 diff --git a/skills-lock.json b/skills-lock.json
 deleted file mode 100644
 index c508845..0000000
@@ -2933,7 +2961,7 @@ index 6af76bf..d66a7b1 100644
        </div>
      </aside>
 diff --git a/src/components/TaskCard.jsx b/src/components/TaskCard.jsx
-index 141d2d1..cb6271d 100644
+index 141d2d1..25a12fa 100644
 --- a/src/components/TaskCard.jsx
 +++ b/src/components/TaskCard.jsx
 @@ -73,7 +73,7 @@ export default function TaskCard({ task, onToggle, onEdit, onDelete }) {
@@ -2991,14 +3019,16 @@ index 141d2d1..cb6271d 100644
                {task.completed && (
                  <span
                    className={`px-3.5 py-1 rounded-xl text-sm font-mono border shrink-0 ${accentTheme.pillBg} ${accentTheme.text} ${accentTheme.border}`}
-@@ -216,6 +228,7 @@ export default function TaskCard({ task, onToggle, onEdit, onDelete }) {
+@@ -216,7 +228,8 @@ export default function TaskCard({ task, onToggle, onEdit, onDelete }) {
              <button
                type="button"
                onClick={() => onEdit(task)}
+-              className="hover:text-white transition-colors p-0.5 opacity-40 hover:opacity-100 cursor-pointer"
 +              aria-label={`Edit task: ${task.task}`}
-               className="hover:text-white transition-colors p-0.5 opacity-40 hover:opacity-100 cursor-pointer"
++              className="hover:text-white transition-colors p-0.5 opacity-100 md:opacity-40 md:hover:opacity-100 cursor-pointer"
              >
                <svg
+                 width="16"
 @@ -238,11 +251,8 @@ export default function TaskCard({ task, onToggle, onEdit, onDelete }) {
              <button
                type="button"
@@ -3009,18 +3039,20 @@ index 141d2d1..cb6271d 100644
 -                  : "hover:text-gray-400"
 -              }`}
 +              aria-label={`Delete task: ${task.task}`}
-+              className="transition-colors my-auto p-0.5 opacity-40 hover:opacity-100 cursor-pointer hover:text-[#FC4445]"
++              className="transition-colors my-auto p-0.5 opacity-100 md:opacity-40 md:hover:opacity-100 cursor-pointer hover:text-[#FC4445]"
              >
                <svg
                  width="16"
-@@ -264,6 +274,7 @@ export default function TaskCard({ task, onToggle, onEdit, onDelete }) {
+@@ -264,7 +274,8 @@ export default function TaskCard({ task, onToggle, onEdit, onDelete }) {
              <button
                type="button"
                onClick={() => onToggle(task.id)}
+-              className={`w-4 h-4 rounded-sm border-2 flex items-center justify-center transition-all opacity-40 hover:opacity-100 cursor-pointer ${
 +              aria-label={task.completed ? `Reopen task: ${task.task}` : `Complete task: ${task.task}`}
-               className={`w-4 h-4 rounded-sm border-2 flex items-center justify-center transition-all opacity-40 hover:opacity-100 cursor-pointer ${
++              className={`w-4 h-4 rounded-sm border-2 flex items-center justify-center transition-all opacity-100 md:opacity-40 md:hover:opacity-100 cursor-pointer ${
                  task.completed
                    ? "border-gray-400 bg-transparent text-gray-300"
+                   : "border-gray-400 hover:border-gray-200 bg-transparent text-transparent"
 diff --git a/src/components/TaskDrawer.jsx b/src/components/TaskDrawer.jsx
 index f41265b..2f20e65 100644
 --- a/src/components/TaskDrawer.jsx
@@ -3074,6 +3106,282 @@ index 4c56e00..88ae5cc 100644
                </div>
              )}
              
+diff --git a/src/hook/useRealtimeTasks.js b/src/hook/useRealtimeTasks.js
+deleted file mode 100644
+index 299dab0..0000000
+--- a/src/hook/useRealtimeTasks.js
++++ /dev/null
+@@ -1,49 +0,0 @@
+-import { useEffect, useState } from 'react';
+-import { supabase } from '../lib/supabaseClient'; 
+-
+-export function useRealtimeTasks(dashboardId) {
+-  const [tasks, setTasks] = useState([]);
+-  const [notification, setNotification] = useState(null);
+-
+-  useEffect(() => {
+-    if (!dashboardId) return;
+-
+-    // Fetch initial tasks
+-    const fetchTasks = async () => {
+-      const { data } = await supabase
+-        .from('tasks')
+-        .select('*')
+-        .eq('dashboard_id', dashboardId);
+-      if (data) setTasks(data);
+-    };
+-
+-    fetchTasks();
+-
+-    // Listen to real-time changes
+-    const channel = supabase
+-      .channel(`dashboard-${dashboardId}`)
+-      .on(
+-        'postgres_changes',
+-        { event: '*', schema: 'public', table: 'tasks', filter: `dashboard_id=eq.${dashboardId}` },
+-        (payload) => {
+-          fetchTasks(); // Reload tasks
+-
+-          // Real-time Notification logic
+-          if (payload.eventType === 'INSERT') {
+-            setNotification(`New task added: "${payload.new.title}"`);
+-          } else if (payload.eventType === 'DELETE') {
+-            setNotification(`A task was deleted`);
+-          } else if (payload.eventType === 'UPDATE') {
+-            setNotification(`Task state updated`);
+-          }
+-        }
+-      )
+-      .subscribe();
+-
+-    return () => {
+-      supabase.removeChannel(channel);
+-    };
+-  }, [dashboardId]);
+-
+-  return { tasks, notification };
+-}
+\ No newline at end of file
+diff --git a/src/hook/useTodos.js b/src/hook/useTodos.js
+deleted file mode 100644
+index ff83022..0000000
+--- a/src/hook/useTodos.js
++++ /dev/null
+@@ -1,213 +0,0 @@
+-import { useState, useEffect, useCallback } from 'react';
+-import { supabase } from '../lib/supabaseClient';
+-
+-export const useTodos = (activeBoardId) => {
+-  const [todos, setTodos] = useState([]);
+-  const [loading, setLoading] = useState(true);
+-
+-  // 0. FETCH TODOS (With Strict Board Isolation Guard)
+-  const fetchTodos = useCallback(async () => {
+-    // Race Condition Guard: Jab tak board state pass/resolve na ho, execution hold rakhein
+-    if (activeBoardId === undefined) return;
+-
+-    setLoading(true);
+-    try {
+-      let query = supabase.from('todos').select('*');
+-
+-      // Filter by Active Board Context
+-      if (activeBoardId) {
+-        query = query.eq('board_id', activeBoardId);
+-      } else {
+-        // Default Workspace Logic: Fetch only default tasks (where board_id is null)
+-        query = query.is('board_id', null);
+-      }
+-
+-      const { data, error } = await query.order('created_at', { ascending: false });
+-
+-      if (error) {
+-        console.error('Error fetching todos:', error.message);
+-      } else {
+-        setTodos(data || []);
+-      }
+-    } catch (err) {
+-      console.error('Fetch execution error:', err);
+-    } finally {
+-      setLoading(false);
+-    }
+-  }, [activeBoardId]);
+-
+-  // Board switch hote hi purane state ko instantly clear karo
+-  useEffect(() => {
+-    setTodos([]);
+-    fetchTodos();
+-  }, [activeBoardId, fetchTodos]);
+-
+-  // Helper to insert log (Default vs Custom board handles gracefully)
+-  const logActivity = async ({ boardId, userId, todoId, actionType, taskTitle, details = {} }) => {
+-    if (!boardId || !userId) {
+-      console.warn('Activity log skipped: boardId or userId is missing.', { boardId, userId });
+-      return;
+-    }
+-
+-    try {
+-      // Clean safe payload
+-      const payload = {
+-        board_id: boardId,
+-        user_id: userId,
+-        todo_id: todoId || null, // Handle null if task is deleted
+-        action_type: actionType,
+-        task_title: taskTitle,
+-        details: details,
+-      };
+-
+-      const { error } = await supabase.from('activity_logs').insert([payload]);
+-
+-      if (error) {
+-        console.error('Failed to log activity:', error.message);
+-      }
+-    } catch (err) {
+-      console.error('Failed to log activity:', err);
+-    }
+-  };
+-
+-  // 1. CREATE TODO
+-  const addTodo = async ({ task, boardId, userId, priority, deadline }) => {
+-    const safeBoardId = boardId || null;
+-    
+-    // Clean Payload without undefined attributes
+-    const payload = {
+-      task,
+-      board_id: safeBoardId,
+-      user_id: userId,
+-      completed: false
+-    };
+-
+-    if (priority) payload.priority = priority;
+-    if (deadline) payload.deadline = deadline;
+-
+-    const { data, error } = await supabase
+-      .from('todos')
+-      .insert([payload])
+-      .select()
+-      .single();
+-
+-    if (error) {
+-      console.error("Supabase Todo Insert Error Details:", error.message, error.details);
+-    }
+-
+-    if (!error && data) {
+-      // Optimistic UI update / Refetch
+-      setTodos((prev) => [data, ...prev]);
+-
+-      await logActivity({
+-        boardId: safeBoardId,
+-        userId,
+-        todoId: data.id,
+-        actionType: 'CREATE',
+-        taskTitle: data.task,
+-      });
+-    }
+-    return { data, error };
+-  };
+-
+-  // 2. EDIT / UPDATE TODO
+-  const updateTodo = async (todoId, updates, boardId, userId) => {
+-    const { data, error } = await supabase
+-      .from('todos')
+-      .update(updates)
+-      .eq('id', todoId)
+-      .select()
+-      .single();
+-
+-    if (error) {
+-      console.error("Supabase Todo Update Error:", error.message);
+-    }
+-
+-    if (!error && data) {
+-      setTodos((prev) => prev.map((t) => (t.id === todoId ? data : t)));
+-
+-      let actionType = 'EDIT';
+-      if (typeof updates.completed === 'boolean') {
+-        actionType = updates.completed ? 'COMPLETED' : 'UNDO';
+-      }
+-
+-      const targetBoardId = boardId || data.board_id;
+-      const targetUserId = userId || data.user_id;
+-
+-      await logActivity({
+-        boardId: targetBoardId,
+-        userId: targetUserId,
+-        todoId: data.id,
+-        actionType: actionType,
+-        taskTitle: data.task,
+-        details: updates,
+-      });
+-    }
+-    return { data, error };
+-  };
+-
+-  // 3. DELETE TODO
+-  const deleteTodo = async (todoId, taskTitle, boardId, userId) => {
+-    // Foreign Key crash fix: Pehle Activity Log likho, fir item Delete karo!
+-    if (boardId && userId) {
+-      await logActivity({
+-        boardId,
+-        userId,
+-        todoId: null, // Foreign Key integrity guard
+-        actionType: 'DELETE',
+-        taskTitle: taskTitle,
+-      });
+-    }
+-
+-    const { error } = await supabase.from('todos').delete().eq('id', todoId);
+-    
+-    if (error) {
+-      console.error("Supabase Todo Delete Error:", error.message);
+-    } else {
+-      setTodos((prev) => prev.filter((t) => t.id !== todoId));
+-    }
+-
+-    return { error };
+-  };
+-
+-  // 4. TOGGLE COMPLETE / UNDO FUNCTION
+-  const toggleTodoStatus = async (todoId, currentCompleted, taskTitle, boardId, userId) => {
+-    const newStatus = !currentCompleted;
+-
+-    // Build update object safely
+-    const updatePayload = { completed: newStatus };
+-
+-    const { data, error } = await supabase
+-      .from('todos')
+-      .update(updatePayload)
+-      .eq('id', todoId)
+-      .select()
+-      .single();
+-
+-    if (error) {
+-      console.error("Supabase Toggle Status Error:", error.message, error.details);
+-    }
+-
+-    if (!error && data) {
+-      setTodos((prev) => prev.map((t) => (t.id === todoId ? data : t)));
+-
+-      const actionType = newStatus ? 'COMPLETED' : 'UNDO';
+-
+-      const targetBoardId = boardId || data.board_id;
+-      const targetUserId = userId || data.user_id;
+-
+-      await logActivity({
+-        boardId: targetBoardId,
+-        userId: targetUserId,
+-        todoId: data.id,
+-        actionType: actionType,
+-        taskTitle: taskTitle || data.task,
+-        details: { completed: newStatus }
+-      });
+-    }
+-
+-    return { data, error };
+-  };
+-
+-  return { todos, loading, refreshTodos: fetchTodos, addTodo, updateTodo, deleteTodo, toggleTodoStatus };
+-};
+\ No newline at end of file
 diff --git a/src/index.css b/src/index.css
 index 7d53049..5f30320 100644
 --- a/src/index.css
@@ -3154,3 +3462,35 @@ index 27106ee..aa822dc 100644
    }
  });
 \ No newline at end of file
+diff --git a/src/lib/useTasks.js b/src/lib/useTasks.js
+index d544af4..0cef39c 100644
+--- a/src/lib/useTasks.js
++++ b/src/lib/useTasks.js
+@@ -495,19 +495,6 @@ const updateTask = async (id, patch) => {
+     if (!error) setTasks([]);
+   };
+ 
+-  const clearCompleted = async () => {
+-    if (!user) return;
+-    let query = supabase.from("todos").delete().eq("completed", true);
+-    if (boardId) {
+-      query = query.eq("board_id", boardId);
+-    } else {
+-      query = query.eq("user_id", user.id).is("board_id", null);
+-    }
+-
+-    const { error } = await query;
+-    if (!error) setTasks((prev) => prev.filter((t) => !t.completed));
+-  };
+-
+   const logout = () => supabase.auth.signOut();
+ 
+   const validTasks = useMemo(
+@@ -542,7 +529,6 @@ const updateTask = async (id, patch) => {
+     deleteTask,
+     toggleTask,
+     clearAll,
+-    clearCompleted,
+     logout,
+     counts,
+     refetchTasks: () => user && fetchTasks(user.id, boardId),
