@@ -2,17 +2,10 @@ import { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "../lib/supabaseClient";
 
-const PRIORITIES = [
-  { key: "low", label: "Low", color: "bg-low" },
-  { key: "normal", label: "Normal", color: "bg-normal" },
-  { key: "high", label: "High", color: "bg-high" },
-];
-
 const emptyForm = {
   task: "",
   des: "",
   deadline: "",
-  priority: "normal",
   assignees: [],
   image: "",
 };
@@ -53,7 +46,6 @@ export default function TaskDrawer({
               task: editingTask.task || "",
               des: editingTask.des || "",
               deadline: editingTask.deadline || "",
-              priority: editingTask.priority || "normal",
               assignees: initialAssignees,
               image: editingTask.image || "",
             }
@@ -221,32 +213,6 @@ export default function TaskDrawer({
                     placeholder="e.g. Renew domain"
                     className="w-full bg-muted border border-muted rounded-xl px-3 py-2.5 text-sm text-[#1E1E24] placeholder:text-gray-500  outline-none transition-colors shadow-sm"
                   />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-medium text-[#FDFBF7]/85 mb-1.5">
-                    Priority
-                  </label>
-                  <div className="flex gap-2">
-                    {PRIORITIES.map((p) => {
-                      const selected = form.priority === p.key;
-                      return (
-                        <button
-                          key={p.key}
-                          type="button"
-                          onClick={() => setForm((f) => ({ ...f, priority: p.key }))}
-                          aria-pressed={selected}
-                          className={`flex-1 py-2 rounded-xl text-xs font-semibold border transition-all cursor-pointer ${
-                            selected
-                              ? `${p.color} text-[#1E1E24] border-transparent shadow-sm`
-                              : "bg-transparent text-[#FDFBF7]/70 border-line hover:border-[#FDD739] hover:text-[#FDFBF7]"
-                          }`}
-                        >
-                          {p.label}
-                        </button>
-                      );
-                    })}
-                  </div>
                 </div>
 
                 <div ref={dropdownRef} className="relative">

@@ -201,18 +201,6 @@ export default function TaskCard({ task, onToggle, onEdit, onDelete }) {
                 {task.deadline ? formatDeadline(task.deadline) : "No Date"}
               </span>
 
-              {task.priority && task.priority !== "normal" && (
-                <span
-                  className={`px-3 py-1 rounded-xl text-xs font-mono font-bold border shrink-0 uppercase tracking-wide ${
-                    task.priority === "high"
-                      ? "bg-[#FF2C59]/15 text-[#FF8FA3] border-[#FF2C59]/40"
-                      : "bg-[#CCDC69]/15 text-[#D8E89A] border-[#CCDC69]/40"
-                  }`}
-                >
-                  {task.priority}
-                </span>
-              )}
-
               {task.completed && (
                 <span
                   className={`px-3.5 py-1 rounded-xl text-sm font-mono border shrink-0 ${accentTheme.pillBg} ${accentTheme.text} ${accentTheme.border}`}
@@ -229,7 +217,7 @@ export default function TaskCard({ task, onToggle, onEdit, onDelete }) {
               type="button"
               onClick={() => onEdit(task)}
               aria-label={`Edit task: ${task.task}`}
-              className="hover:text-white transition-colors p-0.5 opacity-40 hover:opacity-100 cursor-pointer"
+              className="hover:text-white transition-colors p-0.5 opacity-100 md:opacity-40 md:hover:opacity-100 cursor-pointer"
             >
               <svg
                 width="16"
@@ -252,7 +240,7 @@ export default function TaskCard({ task, onToggle, onEdit, onDelete }) {
               type="button"
               onClick={() => onDelete(task.id)}
               aria-label={`Delete task: ${task.task}`}
-              className="transition-colors my-auto p-0.5 opacity-40 hover:opacity-100 cursor-pointer hover:text-[#FC4445]"
+              className="transition-colors my-auto p-0.5 opacity-100 md:opacity-40 md:hover:opacity-100 cursor-pointer hover:text-[#FC4445]"
             >
               <svg
                 width="16"
@@ -275,7 +263,7 @@ export default function TaskCard({ task, onToggle, onEdit, onDelete }) {
               type="button"
               onClick={() => onToggle(task.id)}
               aria-label={task.completed ? `Reopen task: ${task.task}` : `Complete task: ${task.task}`}
-              className={`w-4 h-4 rounded-sm border-2 flex items-center justify-center transition-all opacity-40 hover:opacity-100 cursor-pointer ${
+              className={`w-4 h-4 rounded-sm border-2 flex items-center justify-center transition-all opacity-100 md:opacity-40 md:hover:opacity-100 cursor-pointer ${
                 task.completed
                   ? "border-gray-400 bg-transparent text-gray-300"
                   : "border-gray-400 hover:border-gray-200 bg-transparent text-transparent"

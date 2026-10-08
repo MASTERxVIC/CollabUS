@@ -1,0 +1,19 @@
+{
+  "background_color": "#FDFBF7",
+  "description": "Create and share a unified workspace with friends to manage and assign tasks seamlessly.",
+  "display": "standalone",
+  "icons": [
+    {
+      "purpose": "any",
+      "sizes": "1024x1024",
+      "src": "/collabusfavicon.png",
+      "type": "image/png"
+    }
+  ],
+  "name": "CollabUS",
+  "orientation": "portrait",
+  "scope": "/",
+  "short_name": "CollabUS",
+  "start_url": "/",
+  "theme_color": "#1E1E24"
+}

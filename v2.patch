@@ -1,0 +1,483 @@
+diff --git a/index.html b/index.html
+index ac8bb4d..fb07ccd 100644
+--- a/index.html
++++ b/index.html
+@@ -3,6 +3,8 @@
+   <head>
+     <meta charset="UTF-8" />
+     <link rel="icon" type="image/png" href="/collabusfavicon.png" />
++    <link rel="manifest" href="/manifest.json" />
++    <meta name="theme-color" content="#1E1E24" />
+     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+     <meta name="description" content="CollabUS — create and share a unified workspace with friends to manage and assign tasks seamlessly." />
+     <title>CollabUS — Team Workspace & Task Manager</title>
+diff --git a/public/manifest.json b/public/manifest.json
+new file mode 100644
+index 0000000..f33f989
+--- /dev/null
++++ b/public/manifest.json
+@@ -0,0 +1,19 @@
++{
++  "background_color": "#FDFBF7",
++  "description": "Create and share a unified workspace with friends to manage and assign tasks seamlessly.",
++  "display": "standalone",
++  "icons": [
++    {
++      "purpose": "any",
++      "sizes": "1024x1024",
++      "src": "/collabusfavicon.png",
++      "type": "image/png"
++    }
++  ],
++  "name": "CollabUS",
++  "orientation": "portrait",
++  "scope": "/",
++  "short_name": "CollabUS",
++  "start_url": "/",
++  "theme_color": "#1E1E24"
++}
+diff --git a/src/components/TaskCard.jsx b/src/components/TaskCard.jsx
+index cb6271d..ab5a435 100644
+--- a/src/components/TaskCard.jsx
++++ b/src/components/TaskCard.jsx
+@@ -201,18 +201,6 @@ export default function TaskCard({ task, onToggle, onEdit, onDelete }) {
+                 {task.deadline ? formatDeadline(task.deadline) : "No Date"}
+               </span>
+ 
+-              {task.priority && task.priority !== "normal" && (
+-                <span
+-                  className={`px-3 py-1 rounded-xl text-xs font-mono font-bold border shrink-0 uppercase tracking-wide ${
+-                    task.priority === "high"
+-                      ? "bg-[#FF2C59]/15 text-[#FF8FA3] border-[#FF2C59]/40"
+-                      : "bg-[#CCDC69]/15 text-[#D8E89A] border-[#CCDC69]/40"
+-                  }`}
+-                >
+-                  {task.priority}
+-                </span>
+-              )}
+-
+               {task.completed && (
+                 <span
+                   className={`px-3.5 py-1 rounded-xl text-sm font-mono border shrink-0 ${accentTheme.pillBg} ${accentTheme.text} ${accentTheme.border}`}
+@@ -229,7 +217,7 @@ export default function TaskCard({ task, onToggle, onEdit, onDelete }) {
+               type="button"
+               onClick={() => onEdit(task)}
+               aria-label={`Edit task: ${task.task}`}
+-              className="hover:text-white transition-colors p-0.5 opacity-40 hover:opacity-100 cursor-pointer"
++              className="hover:text-white transition-colors p-0.5 opacity-100 md:opacity-40 md:hover:opacity-100 cursor-pointer"
+             >
+               <svg
+                 width="16"
+@@ -252,7 +240,7 @@ export default function TaskCard({ task, onToggle, onEdit, onDelete }) {
+               type="button"
+               onClick={() => onDelete(task.id)}
+               aria-label={`Delete task: ${task.task}`}
+-              className="transition-colors my-auto p-0.5 opacity-40 hover:opacity-100 cursor-pointer hover:text-[#FC4445]"
++              className="transition-colors my-auto p-0.5 opacity-100 md:opacity-40 md:hover:opacity-100 cursor-pointer hover:text-[#FC4445]"
+             >
+               <svg
+                 width="16"
+@@ -275,7 +263,7 @@ export default function TaskCard({ task, onToggle, onEdit, onDelete }) {
+               type="button"
+               onClick={() => onToggle(task.id)}
+               aria-label={task.completed ? `Reopen task: ${task.task}` : `Complete task: ${task.task}`}
+-              className={`w-4 h-4 rounded-sm border-2 flex items-center justify-center transition-all opacity-40 hover:opacity-100 cursor-pointer ${
++              className={`w-4 h-4 rounded-sm border-2 flex items-center justify-center transition-all opacity-100 md:opacity-40 md:hover:opacity-100 cursor-pointer ${
+                 task.completed
+                   ? "border-gray-400 bg-transparent text-gray-300"
+                   : "border-gray-400 hover:border-gray-200 bg-transparent text-transparent"
+diff --git a/src/components/TaskDrawer.jsx b/src/components/TaskDrawer.jsx
+index 2f20e65..28b0da0 100644
+--- a/src/components/TaskDrawer.jsx
++++ b/src/components/TaskDrawer.jsx
+@@ -2,17 +2,10 @@ import { useEffect, useState, useRef } from "react";
+ import { motion, AnimatePresence } from "framer-motion";
+ import { supabase } from "../lib/supabaseClient";
+ 
+-const PRIORITIES = [
+-  { key: "low", label: "Low", color: "bg-low" },
+-  { key: "normal", label: "Normal", color: "bg-normal" },
+-  { key: "high", label: "High", color: "bg-high" },
+-];
+-
+ const emptyForm = {
+   task: "",
+   des: "",
+   deadline: "",
+-  priority: "normal",
+   assignees: [],
+   image: "",
+ };
+@@ -53,7 +46,6 @@ export default function TaskDrawer({
+               task: editingTask.task || "",
+               des: editingTask.des || "",
+               deadline: editingTask.deadline || "",
+-              priority: editingTask.priority || "normal",
+               assignees: initialAssignees,
+               image: editingTask.image || "",
+             }
+@@ -223,32 +215,6 @@ export default function TaskDrawer({
+                   />
+                 </div>
+ 
+-                <div>
+-                  <label className="block text-xs font-medium text-[#FDFBF7]/85 mb-1.5">
+-                    Priority
+-                  </label>
+-                  <div className="flex gap-2">
+-                    {PRIORITIES.map((p) => {
+-                      const selected = form.priority === p.key;
+-                      return (
+-                        <button
+-                          key={p.key}
+-                          type="button"
+-                          onClick={() => setForm((f) => ({ ...f, priority: p.key }))}
+-                          aria-pressed={selected}
+-                          className={`flex-1 py-2 rounded-xl text-xs font-semibold border transition-all cursor-pointer ${
+-                            selected
+-                              ? `${p.color} text-[#1E1E24] border-transparent shadow-sm`
+-                              : "bg-transparent text-[#FDFBF7]/70 border-line hover:border-[#FDD739] hover:text-[#FDFBF7]"
+-                          }`}
+-                        >
+-                          {p.label}
+-                        </button>
+-                      );
+-                    })}
+-                  </div>
+-                </div>
+-
+                 <div ref={dropdownRef} className="relative">
+                   <label className="block text-xs font-medium text-[#FDFBF7]/85 mb-1.5">
+                     Assignees
+diff --git a/src/hook/useRealtimeTasks.js b/src/hook/useRealtimeTasks.js
+deleted file mode 100644
+index 299dab0..0000000
+--- a/src/hook/useRealtimeTasks.js
++++ /dev/null
+@@ -1,49 +0,0 @@
+-import { useEffect, useState } from 'react';
+-import { supabase } from '../lib/supabaseClient'; 
+-
+-export function useRealtimeTasks(dashboardId) {
+-  const [tasks, setTasks] = useState([]);
+-  const [notification, setNotification] = useState(null);
+-
+-  useEffect(() => {
+-    if (!dashboardId) return;
+-
+-    // Fetch initial tasks
+-    const fetchTasks = async () => {
+-      const { data } = await supabase
+-        .from('tasks')
+-        .select('*')
+-        .eq('dashboard_id', dashboardId);
+-      if (data) setTasks(data);
+-    };
+-
+-    fetchTasks();
+-
+-    // Listen to real-time changes
+-    const channel = supabase
+-      .channel(`dashboard-${dashboardId}`)
+-      .on(
+-        'postgres_changes',
+-        { event: '*', schema: 'public', table: 'tasks', filter: `dashboard_id=eq.${dashboardId}` },
+-        (payload) => {
+-          fetchTasks(); // Reload tasks
+-
+-          // Real-time Notification logic
+-          if (payload.eventType === 'INSERT') {
+-            setNotification(`New task added: "${payload.new.title}"`);
+-          } else if (payload.eventType === 'DELETE') {
+-            setNotification(`A task was deleted`);
+-          } else if (payload.eventType === 'UPDATE') {
+-            setNotification(`Task state updated`);
+-          }
+-        }
+-      )
+-      .subscribe();
+-
+-    return () => {
+-      supabase.removeChannel(channel);
+-    };
+-  }, [dashboardId]);
+-
+-  return { tasks, notification };
+-}
+\ No newline at end of file
+diff --git a/src/hook/useTodos.js b/src/hook/useTodos.js
+deleted file mode 100644
+index ff83022..0000000
+--- a/src/hook/useTodos.js
++++ /dev/null
+@@ -1,213 +0,0 @@
+-import { useState, useEffect, useCallback } from 'react';
+-import { supabase } from '../lib/supabaseClient';
+-
+-export const useTodos = (activeBoardId) => {
+-  const [todos, setTodos] = useState([]);
+-  const [loading, setLoading] = useState(true);
+-
+-  // 0. FETCH TODOS (With Strict Board Isolation Guard)
+-  const fetchTodos = useCallback(async () => {
+-    // Race Condition Guard: Jab tak board state pass/resolve na ho, execution hold rakhein
+-    if (activeBoardId === undefined) return;
+-
+-    setLoading(true);
+-    try {
+-      let query = supabase.from('todos').select('*');
+-
+-      // Filter by Active Board Context
+-      if (activeBoardId) {
+-        query = query.eq('board_id', activeBoardId);
+-      } else {
+-        // Default Workspace Logic: Fetch only default tasks (where board_id is null)
+-        query = query.is('board_id', null);
+-      }
+-
+-      const { data, error } = await query.order('created_at', { ascending: false });
+-
+-      if (error) {
+-        console.error('Error fetching todos:', error.message);
+-      } else {
+-        setTodos(data || []);
+-      }
+-    } catch (err) {
+-      console.error('Fetch execution error:', err);
+-    } finally {
+-      setLoading(false);
+-    }
+-  }, [activeBoardId]);
+-
+-  // Board switch hote hi purane state ko instantly clear karo
+-  useEffect(() => {
+-    setTodos([]);
+-    fetchTodos();
+-  }, [activeBoardId, fetchTodos]);
+-
+-  // Helper to insert log (Default vs Custom board handles gracefully)
+-  const logActivity = async ({ boardId, userId, todoId, actionType, taskTitle, details = {} }) => {
+-    if (!boardId || !userId) {
+-      console.warn('Activity log skipped: boardId or userId is missing.', { boardId, userId });
+-      return;
+-    }
+-
+-    try {
+-      // Clean safe payload
+-      const payload = {
+-        board_id: boardId,
+-        user_id: userId,
+-        todo_id: todoId || null, // Handle null if task is deleted
+-        action_type: actionType,
+-        task_title: taskTitle,
+-        details: details,
+-      };
+-
+-      const { error } = await supabase.from('activity_logs').insert([payload]);
+-
+-      if (error) {
+-        console.error('Failed to log activity:', error.message);
+-      }
+-    } catch (err) {
+-      console.error('Failed to log activity:', err);
+-    }
+-  };
+-
+-  // 1. CREATE TODO
+-  const addTodo = async ({ task, boardId, userId, priority, deadline }) => {
+-    const safeBoardId = boardId || null;
+-    
+-    // Clean Payload without undefined attributes
+-    const payload = {
+-      task,
+-      board_id: safeBoardId,
+-      user_id: userId,
+-      completed: false
+-    };
+-
+-    if (priority) payload.priority = priority;
+-    if (deadline) payload.deadline = deadline;
+-
+-    const { data, error } = await supabase
+-      .from('todos')
+-      .insert([payload])
+-      .select()
+-      .single();
+-
+-    if (error) {
+-      console.error("Supabase Todo Insert Error Details:", error.message, error.details);
+-    }
+-
+-    if (!error && data) {
+-      // Optimistic UI update / Refetch
+-      setTodos((prev) => [data, ...prev]);
+-
+-      await logActivity({
+-        boardId: safeBoardId,
+-        userId,
+-        todoId: data.id,
+-        actionType: 'CREATE',
+-        taskTitle: data.task,
+-      });
+-    }
+-    return { data, error };
+-  };
+-
+-  // 2. EDIT / UPDATE TODO
+-  const updateTodo = async (todoId, updates, boardId, userId) => {
+-    const { data, error } = await supabase
+-      .from('todos')
+-      .update(updates)
+-      .eq('id', todoId)
+-      .select()
+-      .single();
+-
+-    if (error) {
+-      console.error("Supabase Todo Update Error:", error.message);
+-    }
+-
+-    if (!error && data) {
+-      setTodos((prev) => prev.map((t) => (t.id === todoId ? data : t)));
+-
+-      let actionType = 'EDIT';
+-      if (typeof updates.completed === 'boolean') {
+-        actionType = updates.completed ? 'COMPLETED' : 'UNDO';
+-      }
+-
+-      const targetBoardId = boardId || data.board_id;
+-      const targetUserId = userId || data.user_id;
+-
+-      await logActivity({
+-        boardId: targetBoardId,
+-        userId: targetUserId,
+-        todoId: data.id,
+-        actionType: actionType,
+-        taskTitle: data.task,
+-        details: updates,
+-      });
+-    }
+-    return { data, error };
+-  };
+-
+-  // 3. DELETE TODO
+-  const deleteTodo = async (todoId, taskTitle, boardId, userId) => {
+-    // Foreign Key crash fix: Pehle Activity Log likho, fir item Delete karo!
+-    if (boardId && userId) {
+-      await logActivity({
+-        boardId,
+-        userId,
+-        todoId: null, // Foreign Key integrity guard
+-        actionType: 'DELETE',
+-        taskTitle: taskTitle,
+-      });
+-    }
+-
+-    const { error } = await supabase.from('todos').delete().eq('id', todoId);
+-    
+-    if (error) {
+-      console.error("Supabase Todo Delete Error:", error.message);
+-    } else {
+-      setTodos((prev) => prev.filter((t) => t.id !== todoId));
+-    }
+-
+-    return { error };
+-  };
+-
+-  // 4. TOGGLE COMPLETE / UNDO FUNCTION
+-  const toggleTodoStatus = async (todoId, currentCompleted, taskTitle, boardId, userId) => {
+-    const newStatus = !currentCompleted;
+-
+-    // Build update object safely
+-    const updatePayload = { completed: newStatus };
+-
+-    const { data, error } = await supabase
+-      .from('todos')
+-      .update(updatePayload)
+-      .eq('id', todoId)
+-      .select()
+-      .single();
+-
+-    if (error) {
+-      console.error("Supabase Toggle Status Error:", error.message, error.details);
+-    }
+-
+-    if (!error && data) {
+-      setTodos((prev) => prev.map((t) => (t.id === todoId ? data : t)));
+-
+-      const actionType = newStatus ? 'COMPLETED' : 'UNDO';
+-
+-      const targetBoardId = boardId || data.board_id;
+-      const targetUserId = userId || data.user_id;
+-
+-      await logActivity({
+-        boardId: targetBoardId,
+-        userId: targetUserId,
+-        todoId: data.id,
+-        actionType: actionType,
+-        taskTitle: taskTitle || data.task,
+-        details: { completed: newStatus }
+-      });
+-    }
+-
+-    return { data, error };
+-  };
+-
+-  return { todos, loading, refreshTodos: fetchTodos, addTodo, updateTodo, deleteTodo, toggleTodoStatus };
+-};
+\ No newline at end of file
+diff --git a/src/lib/useTasks.js b/src/lib/useTasks.js
+index d544af4..e2c708e 100644
+--- a/src/lib/useTasks.js
++++ b/src/lib/useTasks.js
+@@ -285,7 +285,6 @@ export function useTasks(boardId = null, boardMembers = []) {
+     task,
+     des = "",
+     deadline = null,
+-    priority = "normal",
+     assignee = null, // Ensure default null if omitted
+     image = "",
+     board_id = null,
+@@ -301,7 +300,6 @@ export function useTasks(boardId = null, boardMembers = []) {
+       task,
+       des,
+       deadline,
+-      priority: priority || "normal",
+       assignee: assignee || null, // Clean check
+       image,
+       completed: false,
+@@ -358,7 +356,6 @@ const updateTask = async (id, patch) => {
+     task: patch.task ?? currentTask.task,
+     des: patch.des ?? currentTask.des,
+     deadline: patch.deadline !== undefined ? patch.deadline : currentTask.deadline,
+-    priority: patch.priority ?? currentTask.priority,
+     // Assignee fix: Check multiple properties if patch wraps assignee or preserves existing
+     assignee: patch.assignee !== undefined ? patch.assignee : (currentTask.assignee ?? null),
+     image: patch.image !== undefined ? patch.image : currentTask.image,
+@@ -495,19 +492,6 @@ const updateTask = async (id, patch) => {
+     if (!error) setTasks([]);
+   };
+ 
+-  const clearCompleted = async () => {
+-    if (!user) return;
+-    let query = supabase.from("todos").delete().eq("completed", true);
+-    if (boardId) {
+-      query = query.eq("board_id", boardId);
+-    } else {
+-      query = query.eq("user_id", user.id).is("board_id", null);
+-    }
+-
+-    const { error } = await query;
+-    if (!error) setTasks((prev) => prev.filter((t) => !t.completed));
+-  };
+-
+   const logout = () => supabase.auth.signOut();
+ 
+   const validTasks = useMemo(
+@@ -542,7 +526,6 @@ const updateTask = async (id, patch) => {
+     deleteTask,
+     toggleTask,
+     clearAll,
+-    clearCompleted,
+     logout,
+     counts,
+     refetchTasks: () => user && fetchTasks(user.id, boardId),

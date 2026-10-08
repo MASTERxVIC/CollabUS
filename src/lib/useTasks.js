@@ -285,7 +285,6 @@ export function useTasks(boardId = null, boardMembers = []) {
     task,
     des = "",
     deadline = null,
-    priority = "normal",
     assignee = null, // Ensure default null if omitted
     image = "",
     board_id = null,
@@ -301,7 +300,6 @@ export function useTasks(boardId = null, boardMembers = []) {
       task,
       des,
       deadline,
-      priority: priority || "normal",
       assignee: assignee || null, // Clean check
       image,
       completed: false,
@@ -358,7 +356,6 @@ const updateTask = async (id, patch) => {
     task: patch.task ?? currentTask.task,
     des: patch.des ?? currentTask.des,
     deadline: patch.deadline !== undefined ? patch.deadline : currentTask.deadline,
-    priority: patch.priority ?? currentTask.priority,
     // Assignee fix: Check multiple properties if patch wraps assignee or preserves existing
     assignee: patch.assignee !== undefined ? patch.assignee : (currentTask.assignee ?? null),
     image: patch.image !== undefined ? patch.image : currentTask.image,
@@ -495,19 +492,6 @@ const updateTask = async (id, patch) => {
     if (!error) setTasks([]);
   };
 
-  const clearCompleted = async () => {
-    if (!user) return;
-    let query = supabase.from("todos").delete().eq("completed", true);
-    if (boardId) {
-      query = query.eq("board_id", boardId);
-    } else {
-      query = query.eq("user_id", user.id).is("board_id", null);
-    }
-
-    const { error } = await query;
-    if (!error) setTasks((prev) => prev.filter((t) => !t.completed));
-  };
-
   const logout = () => supabase.auth.signOut();
 
   const validTasks = useMemo(
@@ -542,7 +526,6 @@ const updateTask = async (id, patch) => {
     deleteTask,
     toggleTask,
     clearAll,
-    clearCompleted,
     logout,
     counts,
     refetchTasks: () => user && fetchTasks(user.id, boardId),
