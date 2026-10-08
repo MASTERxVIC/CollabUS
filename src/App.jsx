@@ -58,7 +58,7 @@ export default function App() {
       setInitialInviteCode(joinCode);
       setJoinModalOpen(true);
 
-      // URL clean kar rahe hain bina reload/refresh ke
+      // Clean the URL without a reload/refresh
       window.history.replaceState({}, document.title, window.location.pathname);
     }
   }, []);
@@ -66,9 +66,9 @@ export default function App() {
   const handleSelectBoard = (board) => {
     setActiveBoard(board);
     if (board?.id) {
-      localStorage.setItem('tasked_active_board_id', board.id);
+      localStorage.setItem('collabus_active_board_id', board.id);
     } else {
-      localStorage.removeItem('tasked_active_board_id');
+      localStorage.removeItem('collabus_active_board_id');
     }
   };
 
@@ -143,7 +143,7 @@ export default function App() {
       setBoards(userBoards);
 
       if (userBoards.length > 0) {
-        const savedBoardId = localStorage.getItem('tasked_active_board_id');
+        const savedBoardId = localStorage.getItem('collabus_active_board_id');
         const savedBoard = userBoards.find((b) => b.id === savedBoardId);
         const defaultBoard = userBoards.find((b) => b.is_default || b.name?.toLowerCase() === 'default');
 
@@ -193,7 +193,7 @@ export default function App() {
         (payload) => {
           if (payload.eventType === 'DELETE' && payload.old?.id === activeBoard?.id) {
             setActiveBoard(null);
-            localStorage.removeItem('tasked_active_board_id');
+            localStorage.removeItem('collabus_active_board_id');
           }
           fetchBoards();
         }
@@ -368,7 +368,7 @@ export default function App() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setMobileNavOpen(false)}
-              className="fixed inset-0 z-40 bg-void/70 backdrop-blur-sm md:hidden"
+              className="fixed inset-0 z-40 bg-[#1E1E24]/50 backdrop-blur-sm md:hidden"
             />
             <motion.div
               initial={{ x: '-100%' }}
@@ -426,7 +426,7 @@ export default function App() {
           hasTasks={tasks?.length > 0}
         />
 
-        <main className="flex-1 min-h-0 overflow-y-auto no-scrollbar px-4 md:px-14.2 py-6 max-w-[1200px] w-full mx-auto">
+        <main className="flex-1 min-h-0 overflow-y-auto no-scrollbar px-4 md:px-14 py-6 max-w-[1200px] w-full mx-auto">
           <TaskList
             tasks={tasks || []}
             view={view}

@@ -28,21 +28,31 @@ export default function Auth() {
       });
 
       if (error) {
-        if (
-          error.message.toLowerCase().includes("invalid login credentials") ||
-          error.message.toLowerCase().includes("user not found")
-        ) {
-          setIsSignUp(true);
-          setInfoMsg(
-            "Account not found. Redirected to Sign Up — please create your account.",
-          );
-        } else {
-          setErrorMsg(error.message);
-        }
+        setErrorMsg("Incorrect email or password. Please try again.");
       }
     }
 
     setLoading(false);
+  };
+
+  // Forgot Password Handler
+  const handleForgotPassword = async () => {
+    setErrorMsg(null);
+    setInfoMsg(null);
+    if (!email.trim()) {
+      setErrorMsg("Enter your email above first, then click Forgot password.");
+      return;
+    }
+    setLoading(true);
+    const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+      redirectTo: window.location.origin,
+    });
+    setLoading(false);
+    if (error) {
+      setErrorMsg(error.message);
+    } else {
+      setInfoMsg("Password reset link sent — check your inbox.");
+    }
   };
 
   // Google OAuth Handler (Functionality untouched)
@@ -189,7 +199,18 @@ export default function Auth() {
           </form>
 
           {/* Toggle Link */}
-          <div className="text-center pt-2">
+          <div className="text-center pt-2 space-y-2">
+            {!isSignUp && (
+              <div>
+                <button
+                  type="button"
+                  onClick={handleForgotPassword}
+                  className="text-xs font-medium text-gray-500 hover:text-[#1E1E24] transition-colors cursor-pointer"
+                >
+                  Forgot password?
+                </button>
+              </div>
+            )}
             <button
               type="button"
               onClick={() => {

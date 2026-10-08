@@ -7,6 +7,6 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
     persistSession: true,
     autoRefreshToken: true,
-    detectSessionInUrl: true, // <-- Yeh line URL se Google login ka token pakad legi
+    detectSessionInUrl: true, // picks up the OAuth token from the URL after Google login
   }
 });

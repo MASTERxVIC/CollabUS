@@ -1,16 +1,27 @@
-# Tasked
+# CollabUS
 
-A modern rebuild of the original Task Manager, as a React + Vite app —
-card-based tasks, a sidebar for one-click filtering, and a slide-in panel
-for adding/editing instead of a static form.
+Create and share a unified workspace with friends to manage and assign tasks seamlessly. Full CRUD, due dates, priorities, task categorization, image attachments, and Supabase-backed realtime collaboration — wrapped in a warm, card-based UI.
+
+**Live:** https://collabus-nine-nu.vercel.app/
 
 ## Stack
 
 - React 19 + Vite
 - Tailwind CSS v4
+- Supabase (Postgres, Auth, Realtime, Storage)
 - Framer Motion (drawer/list animations)
-- localStorage persistence (same storage model as the original, now keyed
-  under `todo-modern-tasks`)
+- Web Push notifications (service worker)
+
+## Features
+
+- **Boards / workspaces** — create boards, switch between them from the sidebar, delete with confirmation.
+- **Invite by code or link** — each board has a shareable invite code; `?join=CODE` links open the join modal pre-filled.
+- **Realtime sync** — tasks, boards, and membership update live across collaborators via Supabase Realtime.
+- **Task cards** — priority, assignees (with hover tooltip), due-date badges color-coded by urgency (Overdue → Today → Upcoming → No date), image attachments with lightbox.
+- **Slide-over task editor** — add/edit form in a right-side drawer, including priority picker and member assignment.
+- **Activity log** — per-board feed of who created / updated / completed / deleted what.
+- **Push notifications** — opt-in browser push for board activity and @mentions.
+- **Smart grouping** — the "All Tasks" view groups chronologically with a color-shifting timeline rail; completed tasks auto-delete 7 days after completion (surfaced in the UI).
 
 ## Getting started
 
@@ -21,45 +32,43 @@ npm run build     # production build → dist/
 npm run preview   # preview the production build
 ```
 
-## What changed from the original
+### Environment
 
-- **Table → cards.** Each task is a card with a checkbox, priority dot,
-  description preview, and a color-coded due-date badge.
-- **Sidebar navigation** replaces the dropdown filter: All Tasks, Today,
-  Upcoming, Overdue, Completed — each with a live count, one click away at
-  all times (collapses into a slide-out drawer on mobile).
-- **Add/Edit task** now opens in a right-side slide-over panel instead of a
-  form pinned to the top of the page, and doubles as the edit form (the
-  original had no edit — only add/delete).
-- **Search** replaces the old two-step "choose filter → apply" flow for
-  finding a task by name/description; date-range and completion filtering
-  is now instant via the sidebar sections.
-- **Grouped, chronological list** (Overdue → Today → Upcoming → No date →
-  Completed) in the "All Tasks" view, with a gradient timeline rail down
-  the left edge that shifts color from urgent to calm — a quick visual read
-  of how loaded the week is.
-- **Delete/Clear all** now confirm via an in-app dialog instead of
-  `confirm()`/`alert()` browser popups.
-- GitHub/LinkedIn links and the Documentation page are preserved, now in
-  the sidebar footer. `Documentation.html` is served as-is from `public/`.
+Create a `.env` file with your Supabase project credentials:
+
+```bash
+VITE_SUPABASE_URL=your-project-url
+VITE_SUPABASE_ANON_KEY=your-anon-key
+```
 
 ## Structure
 
 ```
 src/
   components/
-    Sidebar.jsx       # nav + counts + social/doc links
-    Topbar.jsx         # search, mobile menu toggle, new-task button
-    TaskList.jsx        # grouping, empty states, timeline rail
-    TaskCard.jsx          # single task row
-    TaskDrawer.jsx          # add/edit slide-over form
-    ConfirmDialog.jsx         # delete/clear-all confirmation
-    EmptyState.jsx              # per-view empty messaging
+    Auth.jsx            # email/password + Google OAuth login, password reset
+    Sidebar.jsx         # board switcher, view filters with counts, invite panel
+    Topbar.jsx          # search, mobile menu toggle, new-task button
+    TaskList.jsx        # urgency grouping, timeline rail, empty states
+    TaskCard.jsx        # single task card (assignees, priority, lightbox)
+    TaskDrawer.jsx      # add/edit slide-over form
+    CreateBoardModal.jsx / JoinBoardModal.jsx
+    ActivityLogPanel.jsx
+    ConfirmDialog.jsx / EmptyState.jsx
+  hook/
+    useBoardMembers.js / useRealtimeTasks.js / useTodos.js
   lib/
-    useTasks.js        # CRUD + localStorage + counts
-    date.js             # urgency/grouping/date formatting helpers
-  App.jsx
-  index.css            # design tokens (@theme), fonts
+    useTasks.js         # CRUD, realtime subscriptions, 7-day cleanup, counts
+    date.js             # urgency buckets + deadline formatting
+    supabaseClient.js
+  services/workspace.js
+  utils/
+    pushService.js      # push registration + mention detection
+    deviceHelper.js
+  App.jsx               # board state, realtime board sync, modals
+  MainApp.jsx
+  index.css             # design tokens (@theme), fonts
+public/
+  sw.js                 # push service worker
+  Documentation.html    # static docs page
 ```
-
-

@@ -73,7 +73,7 @@ export default function TaskCard({ task, onToggle, onEdit, onDelete }) {
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, x: -12, transition: { duration: 0.15 } }}
         transition={{ duration: 0.25, ease: "easeOut" }}
-        className="relative group shrink-0 select-none"
+        className="relative group shrink-0"
       >
         
         <div
@@ -147,7 +147,7 @@ export default function TaskCard({ task, onToggle, onEdit, onDelete }) {
                       <span
                         className={`inline-flex items-center gap-1 px-3 py-0.5 rounded-xl text-[15px] font-mono font-bold border ${accentTheme.pillBg} ${accentTheme.text} ${accentTheme.border} cursor-pointer transition-all`}
                       >
-                        {/* Single name case me truncate bilkul remove rahega, multiple case me 120px max-width constraint ke sath truncate hoga */}
+                        {/* Single name: no truncation. Multiple names: truncate at 100px with a +N badge */}
                         <span
                           className={
                             isSingleMember
@@ -166,7 +166,7 @@ export default function TaskCard({ task, onToggle, onEdit, onDelete }) {
                         )}
                       </span>
 
-                      {/* Hover Tooltip showing full member list (Multiple member hone par hi hover active hoga) */}
+                      {/* Hover tooltip with the full member list (only rendered for multiple assignees) */}
                       {!isSingleMember && (
                         <div className="absolute left-full top-0 ml-2 hidden group-hover/pill:flex flex-col gap-1 bg-[#FDD739] text-xs font-sans rounded-xl px-3 py-2 shadow-2xl border border-gray-900 z-50 whitespace-nowrap pointer-events-none transition-opacity">
                           <span className="font-sans font-semibold text-[11px] text-[#1E1E23] border-b border-gray-500 pb-1 mb-0.5">
@@ -188,7 +188,7 @@ export default function TaskCard({ task, onToggle, onEdit, onDelete }) {
               </div>
 
               <p
-                className={`text-lg font-afacad font-regular line-clamp-2 ${task.completed ? "text-gray-400" : "text-gray-300"}`}
+                className={`text-lg font-afacad font-normal line-clamp-2 ${task.completed ? "text-gray-400" : "text-gray-300"}`}
               >
                 {task.des || ""}
               </p>
@@ -200,6 +200,18 @@ export default function TaskCard({ task, onToggle, onEdit, onDelete }) {
               >
                 {task.deadline ? formatDeadline(task.deadline) : "No Date"}
               </span>
+
+              {task.priority && task.priority !== "normal" && (
+                <span
+                  className={`px-3 py-1 rounded-xl text-xs font-mono font-bold border shrink-0 uppercase tracking-wide ${
+                    task.priority === "high"
+                      ? "bg-[#FF2C59]/15 text-[#FF8FA3] border-[#FF2C59]/40"
+                      : "bg-[#CCDC69]/15 text-[#D8E89A] border-[#CCDC69]/40"
+                  }`}
+                >
+                  {task.priority}
+                </span>
+              )}
 
               {task.completed && (
                 <span
@@ -216,6 +228,7 @@ export default function TaskCard({ task, onToggle, onEdit, onDelete }) {
             <button
               type="button"
               onClick={() => onEdit(task)}
+              aria-label={`Edit task: ${task.task}`}
               className="hover:text-white transition-colors p-0.5 opacity-40 hover:opacity-100 cursor-pointer"
             >
               <svg
@@ -238,11 +251,8 @@ export default function TaskCard({ task, onToggle, onEdit, onDelete }) {
             <button
               type="button"
               onClick={() => onDelete(task.id)}
-              className={`transition-colors my-auto p-0.5 opacity-40 hover:opacity-100 cursor-pointer ${
-                accentTheme.text
-                  ? `hover:${accentTheme.text}`
-                  : "hover:text-gray-400"
-              }`}
+              aria-label={`Delete task: ${task.task}`}
+              className="transition-colors my-auto p-0.5 opacity-40 hover:opacity-100 cursor-pointer hover:text-[#FC4445]"
             >
               <svg
                 width="16"
@@ -264,6 +274,7 @@ export default function TaskCard({ task, onToggle, onEdit, onDelete }) {
             <button
               type="button"
               onClick={() => onToggle(task.id)}
+              aria-label={task.completed ? `Reopen task: ${task.task}` : `Complete task: ${task.task}`}
               className={`w-4 h-4 rounded-sm border-2 flex items-center justify-center transition-all opacity-40 hover:opacity-100 cursor-pointer ${
                 task.completed
                   ? "border-gray-400 bg-transparent text-gray-300"

@@ -86,6 +86,11 @@ export default function TaskList({ tasks, view, search, onToggle, onEdit, onDele
                   {GROUP_LABEL[group.key]}
                   <span className="opacity-70"> ({group.items.length})</span>
                 </h2>
+                {group.key === 'done' && (
+                  <span className="text-[11px] text-gray-400 font-sans normal-case tracking-normal">
+                    Auto-deletes 7 days after completion
+                  </span>
+                )}
               </div>
             )}
             

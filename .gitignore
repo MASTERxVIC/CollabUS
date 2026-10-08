@@ -27,3 +27,8 @@ dist-ssr
 
 .env
 .env.local
+
+# Agent tooling (not part of the app)
+.agents/
+skills-lock.json
+get-tree.js

@@ -78,7 +78,7 @@ export default function CreateBoardModal({
             },
           ],
           {
-            onConflict: "board_id,user_id", // Yeh unique constraint column name hai
+            onConflict: "board_id,user_id", // unique constraint column name
           },
         );
 

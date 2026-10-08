@@ -223,6 +223,32 @@ export default function TaskDrawer({
                   />
                 </div>
 
+                <div>
+                  <label className="block text-xs font-medium text-[#FDFBF7]/85 mb-1.5">
+                    Priority
+                  </label>
+                  <div className="flex gap-2">
+                    {PRIORITIES.map((p) => {
+                      const selected = form.priority === p.key;
+                      return (
+                        <button
+                          key={p.key}
+                          type="button"
+                          onClick={() => setForm((f) => ({ ...f, priority: p.key }))}
+                          aria-pressed={selected}
+                          className={`flex-1 py-2 rounded-xl text-xs font-semibold border transition-all cursor-pointer ${
+                            selected
+                              ? `${p.color} text-[#1E1E24] border-transparent shadow-sm`
+                              : "bg-transparent text-[#FDFBF7]/70 border-line hover:border-[#FDD739] hover:text-[#FDFBF7]"
+                          }`}
+                        >
+                          {p.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
                 <div ref={dropdownRef} className="relative">
                   <label className="block text-xs font-medium text-[#FDFBF7]/85 mb-1.5">
                     Assignees

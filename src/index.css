@@ -1,5 +1,5 @@
 @import "tailwindcss";
-@import url('https://fonts.googleapis.com/css2?family=Afacad:ital,wght@0,400..700;1,400..700&family=Anta&family=Archivo:ital,wght@0,100..900;1,100..900&family=Big+Shoulders+Inline:opsz,wght@10..72,100..900&family=Big+Shoulders+Stencil:opsz,wght@10..72,100..900&family=Fredoka:wght@300..700&family=Inder&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Manrope:wght@200..800&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&family=Righteous&family=Space+Grotesk:wght@300..700&family=Space+Mono:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Afacad:ital,wght@0,400..700;1,400..700&family=Archivo:ital,wght@0,100..900;1,100..900&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&family=Space+Grotesk:wght@300..700&family=Space+Mono:wght@400;700&display=swap');
 
 @theme {
   /* Structural — Custom Palette */
@@ -8,6 +8,7 @@
   --color-muted: #FDD739;
   --color-muted-dim: #92A3CB;
   --color-line: #D0DCED;
+  --color-surface: #1E1E24;
 
   /* Priority & Actions */
   --color-high: #FF2C59;
@@ -23,11 +24,11 @@
   --color-amber: #CCDC69;
   --color-mint: #CCDC69;
 
-  /* Font Mappings — Sabhi fonts custom variables par available hain */
+  /* Font Mappings */
   --font-sans: 'Plus Jakarta Sans', sans-serif;
   --font-display: 'Space Grotesk', sans-serif;
   --font-mono: 'Space Mono', monospace;
-  --font-fredoka: 'Fredoka', cursive;
+  --font-code: 'Space Mono', monospace;
   --font-archivo: 'Archivo', sans-serif;
   --font-afacad: 'Afacad', sans-serif;
 }
@@ -59,7 +60,6 @@ body {
   color: var(--color-ink);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
-  -webkit-touch-callout: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -85,10 +85,9 @@ body {
 /* Font Classes for Quick Utility Access */
 .font-display { font-family: var(--font-display); }
 .font-mono { font-family: var(--font-mono); }
-.font-righteous { font-family: var(--font-righteous); }
-.font-fredoka { font-family: var(--font-fredoka); }
-.font-inter { font-family: var(--font-inter); }
+.font-code { font-family: var(--font-code); }
 .font-archivo { font-family: var(--font-archivo); }
+.font-afacad { font-family: var(--font-afacad); }
 
 
 /* Default Scrollbar Styling */

@@ -130,7 +130,7 @@ export default function Sidebar({
   };
 
   return (
-    <aside className="flex flex-col h-full w-full lg:w-84.72 shrink-0 bg-[#1E1E24] p-4 overflow-hidden select-none">
+    <aside className="flex flex-col h-full w-full lg:w-84 shrink-0 bg-[#1E1E24] p-4 overflow-hidden select-none">
       {/* Header - App Brand */}
       <div className="flex items-center justify-between mb-4 shrink-0 px-2">
         <div className="flex items-center gap-2">
@@ -299,9 +299,11 @@ export default function Sidebar({
 
         {/* COLLAB SECTION ACCORDION */}
         <div className="px-1 py-2 mt-4 space-y-2">
-          <div
+          <button
+            type="button"
             onClick={() => setIsCollabOpen((prev) => !prev)}
-            className="flex items-center justify-between cursor-pointer px-2 py-1 select-none group"
+            aria-expanded={isCollabOpen}
+            className="w-full flex items-center justify-between cursor-pointer px-2 py-1 select-none group"
           >
             <span className="text-[11px] font-semibold tracking-wider text-gray-400 uppercase group-hover:text-white transition-colors">
               Collab
@@ -311,7 +313,7 @@ export default function Sidebar({
                 isCollabOpen ? "rotate-180" : ""
               }`}
             />
-          </div>
+          </button>
 
           <AnimatePresence>
             {isCollabOpen && (
@@ -423,9 +425,11 @@ export default function Sidebar({
 
         {/* LOGS SECTION ACCORDION */}
         <div className="px-1 py-2 mt-2 space-y-2">
-          <div
+          <button
+            type="button"
             onClick={() => setIsLogsOpen((prev) => !prev)}
-            className="flex items-center justify-between cursor-pointer px-2 py-1 select-none group"
+            aria-expanded={isLogsOpen}
+            className="w-full flex items-center justify-between cursor-pointer px-2 py-1 select-none group"
           >
             <span className="text-[11px] font-semibold tracking-wider text-gray-400 uppercase group-hover:text-white transition-colors">
               Logs & Members
@@ -435,7 +439,7 @@ export default function Sidebar({
                 isLogsOpen ? "rotate-180" : ""
               }`}
             />
-          </div>
+          </button>
 
           <AnimatePresence>
             {isLogsOpen && (
@@ -492,7 +496,7 @@ export default function Sidebar({
         {user && (
           <div className="flex items-center justify-between gap-2 px-2 py-1.5 rounded-xl bg-white/5 border border-white/10">
             <div className="flex items-center gap-2.5 min-w-0">
-              <div className="w-7 h-7 rounded-full bg-surface-raised border border-white/20 flex items-center justify-center font-mono text-xs font-semibold bg-[#FDD739] text-[#1E1E24] shrink-0">
+              <div className="w-7 h-7 rounded-full border border-white/20 flex items-center justify-center font-mono text-xs font-semibold bg-[#FDD739] text-[#1E1E24] shrink-0">
                 {userInitial}
               </div>
               <div className="flex flex-col min-w-0">
@@ -524,7 +528,7 @@ export default function Sidebar({
                 onClick={onLogout}
                 aria-label="Logout"
                 title="Logout"
-                className="p-1.5 text-white/70 hover:bg-void hover:text-red-400 rounded-lg transition-colors cursor-pointer"
+                className="p-1.5 text-white/70 hover:bg-white/10 hover:text-red-400 rounded-lg transition-colors cursor-pointer"
               >
                 <LogOut className="w-4 h-4" />
               </button>
@@ -533,7 +537,7 @@ export default function Sidebar({
         )}
 
         <p className="px-2 text-[10px] text-white/40 text-center">
-          &copy; {new Date().getFullYear()} Tasked
+          &copy; {new Date().getFullYear()} CollabUS
         </p>
       </div>
     </aside>
