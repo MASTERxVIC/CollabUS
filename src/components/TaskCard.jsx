@@ -9,30 +9,35 @@ const CATEGORY_THEME = {
     pillBg: "bg-[#FFE2E0]",
     border: "border-[#CF0003]",
     borderColorClass: "border-l-[#CF0003]",
+    avatar: "bg-[#CF0003] text-white",
   },
   today: {
     text: "text-[#8EA824]",
     pillBg: "bg-[#F2FDC3]",
     border: "border-[#8EA824]",
     borderColorClass: "border-l-[#B0E01E]",
+    avatar: "bg-[#8EA824] text-[#1E1E24]",
   },
   upcoming: {
     text: "text-[#008ACF]",
     pillBg: "bg-[#DDEFFE]",
     border: "border-[#008ACF]",
     borderColorClass: "border-l-[#008ACF]",
+    avatar: "bg-[#008ACF] text-[#1E1E24]",
   },
   none: {
     text: "text-[#A06E32]",
     pillBg: "bg-[#FFF0DD]",
     border: "border-[#A06E32]",
     borderColorClass: "border-l-[#FFC684]",
+    avatar: "bg-[#A06E32] text-white",
   },
   done: {
     text: "text-[#5B7FE6]",
     pillBg: "bg-[#E8ECFF]",
     border: "border-[#89A1FF]",
     borderColorClass: "border-l-[#89A1FF]",
+    avatar: "bg-[#89A1FF] text-[#1E1E24]",
   },
 };
 
@@ -102,7 +107,7 @@ function CheckButton({ task, onToggle }) {
       }
       className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all shrink-0 cursor-pointer ${
         task.completed
-          ? "bg-[#FDD739] border-[#FDD739] text-[#1E1E24]"
+          ? "bg-[#89A1FF] border-[#89A1FF] text-white"
           : "border-gray-400 hover:border-gray-200 bg-transparent text-transparent"
       }`}
     >
@@ -203,7 +208,7 @@ function AttachmentButton({ task, onOpen }) {
   );
 }
 
-function AvatarStack({ members, small }) {
+function AvatarStack({ members, small, accentTheme }) {
   if (!members.length) return null;
   const shown = members.slice(0, 2);
   const extra = members.length - shown.length;
@@ -213,7 +218,7 @@ function AvatarStack({ members, small }) {
       {shown.map((m, i) => (
         <span
           key={i}
-          className={`${size} rounded-full bg-[#FDD739] text-[#1E1E24] font-mono font-bold flex items-center justify-center border-2 border-[#1E1E23] ${
+          className={`${size} rounded-full ${accentTheme.avatar} font-mono font-bold flex items-center justify-center border-2 border-[#1E1E23] ${
             i > 0 ? "-ml-2" : ""
           }`}
         >
@@ -307,7 +312,7 @@ export default function TaskCard({ task, onToggle, onEdit, onDelete }) {
                   onOpen={() => setShowImageModal(true)}
                 />
               )}
-              <AvatarStack members={members} />
+              <AvatarStack members={members} accentTheme={accentTheme} />
             </div>
 
             {task.des ? (
@@ -341,7 +346,7 @@ export default function TaskCard({ task, onToggle, onEdit, onDelete }) {
                   onOpen={() => setShowImageModal(true)}
                 />
               )}
-              <AvatarStack members={members} small />
+              <AvatarStack members={members} small accentTheme={accentTheme} />
               <DatePill task={task} accentTheme={accentTheme} small />
             </div>
 
