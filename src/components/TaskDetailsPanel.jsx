@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   renderDescription,
@@ -36,6 +36,16 @@ export default function TaskDetailsPanel({
   onDelete,
 }) {
   const [showImage, setShowImage] = useState(false);
+  // Mobile (<md) opens as a bottom sheet like the mockup; desktop as a right panel
+  const [isMobile, setIsMobile] = useState(
+    () => typeof window !== "undefined" && window.innerWidth < 768
+  );
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 767px)");
+    const onChange = (e) => setIsMobile(e.matches);
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
+  }, []);
   const categoryKey = task ? getTaskCategory(task) : "none";
   const theme = CATEGORY_THEME[categoryKey] || CATEGORY_THEME.none;
   const imageSrc = task?.image || task?.img || null;
@@ -57,15 +67,25 @@ export default function TaskDetailsPanel({
           />
           <motion.div
             key="details-panel"
-            initial={{ x: "100%" }}
-            animate={{ x: 0 }}
-            exit={{ x: "100%" }}
+            initial={isMobile ? { y: "100%" } : { x: "100%" }}
+            animate={isMobile ? { y: 0 } : { x: 0 }}
+            exit={isMobile ? { y: "100%" } : { x: "100%" }}
             transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
             role="dialog"
             aria-modal="true"
             aria-label={`Task details: ${task.task}`}
-            className="fixed top-0 right-0 z-50 h-full w-full sm:w-[420px] bg-[#1E1E24] flex flex-col shadow-2xl"
+            className={
+              isMobile
+                ? "fixed inset-x-0 bottom-0 z-50 max-h-[88dvh] bg-[#1E1E24] flex flex-col shadow-2xl rounded-t-[28px] overflow-hidden"
+                : "fixed top-0 right-0 z-50 h-full w-full sm:w-[420px] bg-[#1E1E24] flex flex-col shadow-2xl"
+            }
           >
+            {/* Grab handle (mobile sheet only) */}
+            {isMobile && (
+              <div className="pt-2.5 pb-1 shrink-0" aria-hidden="true">
+                <div className="w-11 h-[5px] rounded-full bg-white/20 mx-auto" />
+              </div>
+            )}
             {/* Header */}
             <div className="flex items-center justify-between px-6 py-5 border-b border-white/10 shrink-0">
               <span
