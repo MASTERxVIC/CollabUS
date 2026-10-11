@@ -1,0 +1,23 @@
+diff --git a/src/components/TaskCard.jsx b/src/components/TaskCard.jsx
+index e45cd70..5f14d51 100644
+--- a/src/components/TaskCard.jsx
++++ b/src/components/TaskCard.jsx
+@@ -28,10 +28,17 @@ const CATEGORY_THEME = {
+     border: "border-[#A06E32]",
+     borderColorClass: "border-l-[#FFC684]",
+   },
++  done: {
++    text: "text-[#5B7FE6]",
++    pillBg: "bg-[#E8ECFF]",
++    border: "border-[#89A1FF]",
++    borderColorClass: "border-l-[#89A1FF]",
++  },
+ };
+ 
+-// Helper: Get actual category even if task is completed
++// Helper: completed tasks always use the Completed section's colors
+ function getTaskCategory(task) {
++  if (task.completed) return "done";
+   if (task.category) return task.category;
+   if (!task.deadline) return "none";
+   const rawUrgency = urgency({ ...task, completed: false });
