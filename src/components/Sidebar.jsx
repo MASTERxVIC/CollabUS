@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ChevronDown,
+  ChevronRight,
   Check,
   FolderPlus,
   UserPlus,
@@ -16,6 +17,8 @@ import {
   Lock,
   Bell,
   Share2,
+  Pin,
+  PinOff,
 } from "lucide-react";
 import { enableNotifications } from "../utils/pushService";
 
@@ -58,14 +61,59 @@ export default function Sidebar({
   onOpenJoinModal,
   onOpenLogs,
   boardMembers = [],
+  collapsible = false,
 }) {
   const [copied, setCopied] = useState(false);
   const [showCode, setShowCode] = useState(false);
   const [isBoardDropdownOpen, setIsBoardDropdownOpen] = useState(false);
   const [isCollabOpen, setIsCollabOpen] = useState(false);
   const [isLogsOpen, setIsLogsOpen] = useState(false);
+  const [collapsed, setCollapsed] = useState(false);
+  const [pinned, setPinned] = useState(false);
 
   const dropdownRef = useRef(null);
+  const asideRef = useRef(null);
+  const collapseTimer = useRef(null);
+
+  const doExpand = () => {
+    if (!collapsible) return;
+    clearTimeout(collapseTimer.current);
+    setCollapsed(false);
+  };
+
+  const doCollapse = () => {
+    if (!collapsible || pinned) return;
+    setCollapsed(true);
+  };
+
+  const scheduleCollapse = (ms = 700) => {
+    if (!collapsible) return;
+    clearTimeout(collapseTimer.current);
+    collapseTimer.current = setTimeout(doCollapse, ms);
+  };
+
+  const togglePin = () => {
+    if (!collapsible) return;
+    if (pinned) {
+      setPinned(false);
+      scheduleCollapse(1500);
+    } else {
+      clearTimeout(collapseTimer.current);
+      setPinned(true);
+      setCollapsed(false);
+    }
+  };
+
+  // Auto-collapse shortly after mount when idle (desktop only)
+  useEffect(() => {
+    if (!collapsible) return;
+    collapseTimer.current = setTimeout(() => {
+      if (asideRef.current && !asideRef.current.matches(":hover")) {
+        setCollapsed(true);
+      }
+    }, 2500);
+    return () => clearTimeout(collapseTimer.current);
+  }, [collapsible]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -130,7 +178,22 @@ export default function Sidebar({
   };
 
   return (
-    <aside className="flex flex-col h-full w-full lg:w-84 shrink-0 bg-[#1E1E24] p-4 overflow-hidden select-none">
+    <aside
+      ref={asideRef}
+      onMouseEnter={collapsible ? doExpand : undefined}
+      onMouseLeave={collapsible ? () => scheduleCollapse(700) : undefined}
+      className={`flex h-full shrink-0 bg-[#1E1E24] overflow-hidden select-none transition-[width] duration-300 ease-out ${
+        collapsible && collapsed ? "w-15" : "w-full lg:w-84"
+      }`}
+    >
+      {/* Full sidebar content */}
+      <div
+        className={`flex-col h-full w-[264px] shrink-0 p-4 overflow-hidden transition-opacity duration-150 ${
+          collapsible && collapsed
+            ? "opacity-0 pointer-events-none"
+            : "opacity-100 flex"
+        }`}
+      >
       {/* Header - App Brand */}
       <div className="flex items-center justify-between mb-4 shrink-0 px-2">
         <div className="flex items-center gap-2">
@@ -139,16 +202,37 @@ export default function Sidebar({
             Collab<span className="text-[#FDD739]">US</span>
           </span>
         </div>
-        {onClose && (
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label="Close menu"
-            className="lg:hidden text-white/70 hover:text-[#FDFBF7] p-1 cursor-pointer transition-colors"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        )}
+        <div className="flex items-center gap-1">
+          {collapsible && (
+            <button
+              type="button"
+              onClick={togglePin}
+              aria-label={pinned ? "Unpin sidebar" : "Pin sidebar open"}
+              title={pinned ? "Unpin sidebar" : "Pin sidebar open"}
+              className={`p-1 cursor-pointer transition-colors ${
+                pinned
+                  ? "text-[#FDD739]"
+                  : "text-white/50 hover:text-[#FDD739]"
+              }`}
+            >
+              {pinned ? (
+                <PinOff className="w-4 h-4" />
+              ) : (
+                <Pin className="w-4 h-4" />
+              )}
+            </button>
+          )}
+          {onClose && (
+            <button
+              type="button"
+              onClick={onClose}
+              aria-label="Close menu"
+              className="lg:hidden text-white/70 hover:text-[#FDFBF7] p-1 cursor-pointer transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Boards Switcher Dropdown */}
@@ -540,6 +624,47 @@ export default function Sidebar({
           &copy; {new Date().getFullYear()} CollabUS
         </p>
       </div>
+      </div>
+
+      {/* Collapsed rail (desktop only) */}
+      {collapsible && collapsed && (
+        <div className="flex flex-col items-center w-full py-4 gap-2.5">
+          <button
+            type="button"
+            onClick={doExpand}
+            aria-label="Expand sidebar"
+            title="Expand sidebar"
+            className="w-9 h-9 rounded-full bg-[#FDD739] text-[#1E1E24] flex items-center justify-center cursor-pointer hover:scale-105 transition-transform mb-1"
+          >
+            <ChevronRight className="w-5 h-5" strokeWidth={2.5} />
+          </button>
+          {NAV.map((item) => {
+            const active = view === item.key;
+            return (
+              <button
+                key={item.key}
+                type="button"
+                onClick={() => setView(item.key)}
+                aria-label={item.label}
+                title={item.label}
+                className={`w-9 h-9 rounded-xl flex items-center justify-center transition-colors cursor-pointer ${
+                  active ? "bg-[#FDD739]" : "bg-white/10 hover:bg-white/15"
+                }`}
+              >
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+                  <path
+                    d={item.icon}
+                    stroke={active ? "#1E1E24" : "rgba(255,255,255,.8)"}
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </button>
+            );
+          })}
+        </div>
+      )}
     </aside>
   );
 }

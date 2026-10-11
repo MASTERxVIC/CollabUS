@@ -350,6 +350,7 @@ export default function App() {
           onSelectBoard={(board) => handleSelectBoard(board)}
           onDeleteBoard={requestDeleteBoard}
           onLogout={logout}
+          collapsible
           onOpenJoinModal={() => {
             setInitialInviteCode('');
             setJoinModalOpen(true);
