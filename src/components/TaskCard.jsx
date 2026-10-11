@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { urgency, formatDeadline } from "../lib/date";
 
 // Category Specific Themes
-const CATEGORY_THEME = {
+export const CATEGORY_THEME = {
   overdue: {
     text: "text-[#CF0003]",
     pillBg: "bg-[#FFE2E0]",
@@ -42,7 +42,7 @@ const CATEGORY_THEME = {
 };
 
 // Helper: completed tasks always use the Completed section's colors
-function getTaskCategory(task) {
+export function getTaskCategory(task) {
   if (task.completed) return "done";
   if (task.category) return task.category;
   if (!task.deadline) return "none";
@@ -63,7 +63,7 @@ function getAssigneeList(task) {
   return [];
 }
 
-function initials(name) {
+export function initials(name) {
   return name
     .split(" ")
     .filter(Boolean)
@@ -73,7 +73,7 @@ function initials(name) {
 }
 
 // Turn raw URLs in the description into short clickable links
-function renderDescription(des) {
+export function renderDescription(des) {
   if (!des) return null;
   const parts = des.split(/(https?:\/\/[^\s]+)/g);
   return parts.map((part, i) => {
@@ -122,6 +122,34 @@ function CheckButton({ task, onToggle }) {
         strokeLinejoin="round"
       >
         <path d="M5 13l4 4L19 7" />
+      </svg>
+    </button>
+  );
+}
+
+function ViewButton({ task, onView }) {
+  return (
+    <button
+      type="button"
+      onClick={(e) => {
+        e.stopPropagation();
+        onView?.(task);
+      }}
+      aria-label={`View details: ${task.task}`}
+      className="w-8 h-8 rounded-lg inline-flex items-center justify-center text-[#FDD739] hover:text-[#FDD739] hover:bg-[#FDD739]/15 transition-colors cursor-pointer"
+    >
+      <svg
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z" />
+        <circle cx="12" cy="12" r="3" />
       </svg>
     </button>
   );
@@ -260,7 +288,7 @@ function DatePill({ task, accentTheme, small }) {
   );
 }
 
-export default function TaskCard({ task, onToggle, onEdit, onDelete }) {
+export default function TaskCard({ task, onToggle, onEdit, onDelete, onView }) {
   const [showImageModal, setShowImageModal] = useState(false);
 
   useEffect(() => {
@@ -293,7 +321,14 @@ export default function TaskCard({ task, onToggle, onEdit, onDelete }) {
         className="relative group shrink-0 max-w-full hover:z-30"
       >
         <div
-          className={`relative z-10 bg-[#1E1E23] text-white shadow-xl transition-all duration-200 w-full md:w-82 border-l-[6px] rounded-[20px] p-4 md:border-l-8 md:rounded-4xl md:pl-5 md:pr-4 md:py-5 ${accentTheme.borderColorClass} ${
+          onClick={(e) => {
+            // Mobile: tap card opens details. Desktop uses the eye button.
+            if (window.innerWidth >= 768) return;
+            // Let buttons, links and the avatar tooltip handle their own taps
+            if (e.target.closest("button, a")) return;
+            onView?.(task);
+          }}
+          className={`relative z-10 bg-[#1E1E23] text-white shadow-xl transition-all duration-200 w-full md:w-82 border-l-[6px] rounded-[20px] p-4 md:border-l-8 md:rounded-4xl md:pl-5 md:pr-4 md:py-5 cursor-pointer md:cursor-default ${accentTheme.borderColorClass} ${
             task.completed ? "opacity-60" : "opacity-100"
           }`}
         >
@@ -325,6 +360,7 @@ export default function TaskCard({ task, onToggle, onEdit, onDelete }) {
               <DatePill task={task} accentTheme={accentTheme} />
               <span className="flex-1" />
               <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                <ViewButton task={task} onView={onView} />
                 <EditButton task={task} onEdit={onEdit} />
                 <DeleteButton task={task} onDelete={onDelete} />
               </div>

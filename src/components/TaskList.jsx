@@ -31,7 +31,7 @@ function groupTasks(tasks) {
   return GROUP_ORDER.filter((k) => groups[k]?.length).map((k) => ({ key: k, items: groups[k] }));
 }
 
-export default function TaskList({ tasks, view, search, onToggle, onEdit, onDelete }) {
+export default function TaskList({ tasks, view, search, onToggle, onEdit, onDelete, onView }) {
   const filtered = tasks.filter((t) => {
     if (search) {
       const q = search.toLowerCase();
@@ -98,7 +98,7 @@ export default function TaskList({ tasks, view, search, onToggle, onEdit, onDele
             <div className="flex flex-wrap gap-6 items-start justify-start w-full">
               <AnimatePresence initial={false}>
                 {group.items.map((task) => (
-                  <TaskCard key={task.id} task={task} onToggle={onToggle} onEdit={onEdit} onDelete={onDelete} />
+                  <TaskCard key={task.id} task={task} onToggle={onToggle} onEdit={onEdit} onDelete={onDelete} onView={onView} />
                 ))}
               </AnimatePresence>
             </div>

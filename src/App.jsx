@@ -4,6 +4,7 @@ import Sidebar from './components/Sidebar';
 import Topbar from './components/Topbar';
 import TaskList from './components/TaskList';
 import TaskDrawer from './components/TaskDrawer';
+import TaskDetailsPanel from './components/TaskDetailsPanel';
 import ConfirmDialog from './components/ConfirmDialog';
 import Auth from './components/Auth';
 import JoinBoardModal from './components/JoinBoardModal';
@@ -42,6 +43,9 @@ export default function App() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
   const [confirm, setConfirm] = useState(null);
+  const [viewingTaskId, setViewingTaskId] = useState(null);
+  // Live lookup so the panel reflects toggles; auto-closes if the task is deleted
+  const viewingTask = (tasks || []).find((t) => t.id === viewingTaskId) || null;
   const [joinModalOpen, setJoinModalOpen] = useState(false);
   const [initialInviteCode, setInitialInviteCode] = useState(''); // Added for URL join code pre-fill
   const [createModalOpen, setCreateModalOpen] = useState(false);
@@ -435,6 +439,7 @@ export default function App() {
             onToggle={toggleTask}
             onEdit={openEditDrawer}
             onDelete={requestDelete}
+            onView={(task) => setViewingTaskId(task.id)}
           />
         </main>
       </div>
@@ -451,6 +456,18 @@ export default function App() {
         onSave={handleSave}
         editingTask={editingTask}
         boardMembers={boardMembers}
+      />
+
+      <TaskDetailsPanel
+        task={viewingTask}
+        boardName={activeBoard?.name}
+        onClose={() => setViewingTaskId(null)}
+        onToggle={toggleTask}
+        onEdit={(t) => {
+          setViewingTaskId(null);
+          openEditDrawer(t);
+        }}
+        onDelete={requestDelete}
       />
 
       <CreateBoardModal
