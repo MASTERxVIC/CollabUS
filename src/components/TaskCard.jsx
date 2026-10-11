@@ -290,7 +290,7 @@ export default function TaskCard({ task, onToggle, onEdit, onDelete }) {
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, x: -12, transition: { duration: 0.15 } }}
         transition={{ duration: 0.25, ease: "easeOut" }}
-        className="relative group shrink-0 hover:z-30"
+        className="relative group shrink-0 max-w-full hover:z-30"
       >
         <div
           className={`relative z-10 bg-[#1E1E23] text-white shadow-xl transition-all duration-200 w-full md:w-82 border-l-[6px] rounded-[20px] p-4 md:border-l-8 md:rounded-4xl md:pl-5 md:pr-4 md:py-5 ${accentTheme.borderColorClass} ${
