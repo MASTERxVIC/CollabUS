@@ -351,7 +351,7 @@ export default function TaskCard({ task, onToggle, onEdit, onDelete }) {
             </div>
 
             {task.des ? (
-              <p className="text-[15px] font-afacad font-normal text-gray-300 truncate mt-1.5 ml-[30px]">
+              <p className="text-[15px] font-afacad font-normal text-gray-300 line-clamp-1 break-all min-w-0 mt-1.5 ml-[30px]">
                 {renderDescription(task.des)}
               </p>
             ) : null}
